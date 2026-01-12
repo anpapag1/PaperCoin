@@ -17,11 +17,10 @@ show_value = True
 previous_paper_rect = None
 
 # Preset camera index (None to prompt user)
-PRESET_CAM = 2
+PRESET_CAM = None
 
 # A4 paper detection smoothing parameters
 A4_MOVEMENT_THRESHOLD = 2
-A4_SMOOTHING_FACTOR = 0.8
 
 # Coin radius filtering parameter
 RADIUS_FILTER_FRAMES = 30
@@ -37,7 +36,7 @@ A4_CANNY_HIGH = 150
 # Coin detection parameters
 COIN_MIN_RADIUS = 15
 COIN_MAX_RADIUS = 45
-COIN_MIN_DIST = 40
+COIN_MIN_DIST = 40 # Minimum distance between detected coin centers
 COIN_HOUGH_PARAM1 = 50
 COIN_HOUGH_PARAM2 = 30
 COIN_MEDIAN_BLUR = 7
@@ -60,7 +59,8 @@ def camera_select(preset = None):
     Lists available USB cameras and prompts user to select one.
     If a preset index is provided, it is used directly.
     """
-    if preset:
+    # if preset is path to file use that as input if it is index use that for camera index
+    if preset is not None:
         print(f"Using preset camera index: {preset}")
         return preset
     else:
@@ -196,7 +196,7 @@ def find_and_crop_a4(frame):
     else:
         # No paper found, return original frame
         return frame, None
-    
+
 def hough_circle_detection(coins, min_r, max_r):
     # turn original image to grayscale
     gray = cv2.cvtColor(coins, cv2.COLOR_BGR2GRAY)
@@ -214,7 +214,6 @@ def hough_circle_detection(coins, min_r, max_r):
         minRadius=min_r,  # min circle radius
         maxRadius=max_r,  # max circle radius
     )
-
 
 def find_coins(frame):
     global coin_radius_history
@@ -310,7 +309,6 @@ def main():
     
     # Load camera
     cap = cv2.VideoCapture(camera_select(PRESET_CAM))
-    
     # Display cam
     while True:
         ret, frame = cap.read()
@@ -344,7 +342,6 @@ def main():
         elif key == ord('r'):
             show_value = not show_value
             print(f"Display mode: {'Value' if show_value else 'Radius'}")
-    
-# if main
+
 if __name__ == "__main__":
     main()
